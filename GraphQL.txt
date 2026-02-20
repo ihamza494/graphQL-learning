@@ -1,0 +1,2 @@
+what is mutation?
+we use query for data fetching, in graphQl we use mutation for CRUD operations.
