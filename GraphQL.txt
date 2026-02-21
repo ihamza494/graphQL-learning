@@ -1,2 +1,15 @@
 what is mutation?
 we use query for data fetching, in graphQl we use mutation for CRUD operations.
+-add
+-update
+-delete
+
+-resolve 
+
+
+-connect graphQL with MongoDB
+-setup MongoDB
+
+create dotenv file 
+MONGOURI variable
+

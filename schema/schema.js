@@ -1,4 +1,6 @@
-const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt }=require("graphql");
+const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList }=require("graphql");
+
+const User = require('../models/User');
 
 const deviceType = new GraphQLObjectType({
     name:"Device",
@@ -11,12 +13,6 @@ const deviceType = new GraphQLObjectType({
         os:{type: GraphQLString}
     }
 });
-
-const users = [
-                    { id: '1', name: "sandeep", age: 25},
-                    { id: '2', name: "jaideep", age: 23},
-                    { id: '3', name: "prandeep", age: 29}
-                ];
 
 
 const userType = new GraphQLObjectType({
@@ -55,24 +51,25 @@ const RootQuery = new GraphQLObjectType({
                 return devices.find(device => device.id === args.id);
             }
         },
+        users:{
+            type: new GraphQLList(userType),
+            resolve( parent, args){
+                return User.find();
+            }
+        },
+        userById:{
+            type: userType,
+            args:{ id: { type: GraphQLString }},
+            resolve(parent, args){
+                return User.findById(args.id);
+            }
+        },
         user:{
             type: userType,
             args:{ id:  { type: GraphQLString }},
             resolve(parent, args){
                 console.log(users);
                 return users.find(user => user.id === args.id);
-            }
-        },
-        hello:{
-            type: GraphQLString,
-            resolve(){   //returns data , brain of graphQL backend , decide from where data comes
-                return 'Hello From GraphQL';
-            }
-        },
-        greeting:{
-            type: GraphQLString,
-            resolve(){
-                return 'Ramadan Mubarak';
             }
         }
     }
@@ -88,16 +85,13 @@ const MutationObj = new GraphQLObjectType({
                 name: {type:GraphQLString},
                 age: { type: GraphQLInt }
             },
-            resolve(parent, args){
-                const userObj = {
-                    id: users.length + 1+"",
-                    name: args.name,
-                    age: args.age
-                }
+            async resolve(parent, args){
+               const user = new User({
+                name: args.name,
+                age: args.age
+               });
+               return await user.save();
 
-                users.push(userObj);
-                console.log(users);
-                return userObj;
             }
         },
         updateUser:{
@@ -107,15 +101,12 @@ const MutationObj = new GraphQLObjectType({
                 name: {type:GraphQLString},
                 age: { type: GraphQLInt}
             },
-            resolve(parent, args){
-                const userObj = users.find(u=>u.id=== args.id);
-                if(userObj){
-                    userObj.name=args.name || userObj.name;
-                    userObj.age=args.age || userObj.age;
-                    console.log(users);
-                    return userObj;  
-                }
-                throw new Error("User not Found!");
+            async resolve(parent, args){
+                return await User.findByIdAndUpdate(
+                    args.id,
+                    { name: args.name, age: args.age },
+                    { new: true}
+                );
                 
                 }
         },
@@ -124,10 +115,10 @@ const MutationObj = new GraphQLObjectType({
             args: {
                 id: {type:GraphQLString}
             },
-            resolve(parent, args){
-                const userIndex = users.findIndex(u=>u.id=== args.id);
-                if(userIndex === -1)throw new Error("User not Found!");
-                return users.splice(userIndex,1)[0];
+            async resolve(parent, args){
+                return await User.findByIdAndDelete(
+                    args.id
+                );
                 
                 }
         }
