@@ -16,4 +16,8 @@ MONGOURI variable
 -in index.js create moongoose connection 
 -create models (folder) and inside it create User.js (schema)
 -then for GraphQL mutation and queries, use 'User Schema models'.
- 
+-use structured input type
+- define input types separately
+-don't skip validation
+-try to validate on server side
+-use GraphQLInputObjectType 

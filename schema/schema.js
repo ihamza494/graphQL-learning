@@ -1,6 +1,14 @@
-const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList }=require("graphql");
+const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList, GraphQLInputObjectType, GraphQLNonNull }=require("graphql");
 
 const User = require('../models/User');
+
+const UserInputType = new GraphQLInputObjectType({
+    name: 'UserInput',
+    fields: {
+        name: { type: new GraphQLNonNull(GraphQLString) },
+        age: {  type: GraphQLInt }
+    }
+});
 
 const deviceType = new GraphQLObjectType({
     name:"Device",
@@ -36,21 +44,6 @@ const userType = new GraphQLObjectType({
 const RootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
     fields:{
-        device:{
-            type: deviceType,
-            args:{ id: { type: GraphQLString}},
-            resolve(parent, args){
-                const devices = [
-                    {id: '1', name: 'dell', generation:'11', ram:'12', ssd:'256', os:'win'},
-                    {id: '2', name: 'hp', generation:'12', ram:'20', ssd:'256', os:'win'},
-                    {id: '3', name: 'lenovo', generation:'8', ram:'12', ssd:'256', os:'win'},
-                    {id: '4', name: 'thinkpad', generation:'7', ram:'12', ssd:'256', os:'win'},
-                    {id: '5', name: 'intel', generation:'9', ram:'12', ssd:'256', os:'win'},
-                ]
-
-                return devices.find(device => device.id === args.id);
-            }
-        },
         users:{
             type: new GraphQLList(userType),
             resolve( parent, args){
@@ -63,14 +56,6 @@ const RootQuery = new GraphQLObjectType({
             resolve(parent, args){
                 return User.findById(args.id);
             }
-        },
-        user:{
-            type: userType,
-            args:{ id:  { type: GraphQLString }},
-            resolve(parent, args){
-                console.log(users);
-                return users.find(user => user.id === args.id);
-            }
         }
     }
 });
@@ -82,13 +67,17 @@ const MutationObj = new GraphQLObjectType({
         addUser:{
             type: userType,
             args: {
-                name: {type:GraphQLString},
-                age: { type: GraphQLInt }
+               input: { type: UserInputType }
             },
-            async resolve(parent, args){
+            async resolve(_, { input }){
+
+                if(!input.name || input.name.length < 3){
+                    throw new Error("Name must be atleast 3 characters.")
+                }
+
                const user = new User({
-                name: args.name,
-                age: args.age
+                name: input.name,
+                age: input.age
                });
                return await user.save();
 

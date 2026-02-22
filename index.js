@@ -2,7 +2,7 @@ const express = require("express");
 require("dotenv").config();
 const mongoose = require("mongoose");
 const { createHandler } = require('graphql-http/lib/use/express');
-const schema = require("./schema/schema");
+const index = require("./schema/index");
 
 mongoose.connect(process.env.MONGO_URI).then(()=>{
     console.log("Connected")
@@ -11,8 +11,7 @@ mongoose.connect(process.env.MONGO_URI).then(()=>{
 const app = express();
 
 app.all('/graphql', createHandler({
-     schema,
-     graphiql: true
+     schema:index
  }));
 
 
