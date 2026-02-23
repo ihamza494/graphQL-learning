@@ -22,3 +22,4 @@ MONGOURI variable
 -try to validate on server side
 -use GraphQLInputObjectType 
 
+-Pagination and Filtering
