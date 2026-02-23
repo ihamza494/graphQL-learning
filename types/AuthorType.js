@@ -1,9 +1,11 @@
 const { GraphQLObjectType, GraphQLID , GraphQLString, GraphQLList } =require("graphql");
-const Book = require("../models/Book");
+
 
 const AuthorType = new GraphQLObjectType({
     name: "Author",
-    fields:()=>({
+    fields:()=>{
+        const Book = require("../models/Book");
+        return {
         id: { type: GraphQLID},
         name: { type: GraphQLString},
         books:{
@@ -12,7 +14,8 @@ const AuthorType = new GraphQLObjectType({
                 return Book.find({authorId: parent.id});
                 }
             }
-    })
+    }
+}
 });
 
 module.exports = AuthorType;
