@@ -130,6 +130,12 @@ const RootQuery = new GraphQLObjectType({
                 return await Category.findById(args.id);
             }
         },
+        categories:{
+            type: new GraphQLList(CategoryType),
+            async resolve(parent,args){
+                return await Category.find({});
+            }
+        },
         authorById:{
             type: AuthorType,
             args:{ id: { type: GraphQLID }},
