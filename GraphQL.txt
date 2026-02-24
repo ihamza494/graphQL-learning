@@ -23,3 +23,7 @@ MONGOURI variable
 -use GraphQLInputObjectType 
 
 -Pagination and Filtering
+
+
+--MANY TO MANY RELATIONSHIP 
+-Book & Category

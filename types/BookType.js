@@ -1,6 +1,8 @@
 const { GraphQLObjectType, GraphQLID , GraphQLString, GraphQLList } =require("graphql");
 
 const Author = require("../models/Author");
+const Category = require("../models/Category");
+const CategoryType = require("./CategoryType");
 const BookType = new GraphQLObjectType({
     name: "Book",
     fields:()=>{
@@ -14,8 +16,14 @@ const BookType = new GraphQLObjectType({
             resolve(parent,args){
                 return Author.findById(parent.authorId);
             }
+        },
+        Categories:{
+            type: new GraphQLList(CategoryType),
+            async resolve(parent,args){
+                return await Category.find({ _id: { $in: parent.categoryId } });
+            }
         }
-    }
+    }   
 }
 
 });

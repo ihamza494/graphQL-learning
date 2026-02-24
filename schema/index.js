@@ -4,7 +4,8 @@ const {
     GraphQLString, 
     GraphQLList,
     GraphQLSchema,
-    GraphQLInt
+    GraphQLInt,
+    GraphQLNonNull
      } =require("graphql");
 
 const AuthorType = require('../types/AuthorType');
@@ -13,6 +14,8 @@ const BookPaginationType = require('../types/BookPaginationType');
 const Author = require('../models/Author');
 const Book = require('../models/Book');
 const AuthorPaginationType = require("../types/AuthorPaginationType");
+const Category = require("../models/Category");
+const CategoryType = require("../types/CategoryType");
 
 const Mutation = new GraphQLObjectType({
     name: "Mutation",
@@ -31,16 +34,33 @@ const Mutation = new GraphQLObjectType({
             type: BookType,
             args: {
                 title: { type: GraphQLString},
-                authorId: { type: GraphQLID}
+                authorId: { type: GraphQLID},
+                categoryId: { type: new GraphQLList(GraphQLID) }
             },
             resolve(parent,args){
                 const book= new Book({ 
                                 title: args.title,
-                                authorId: args.authorId
+                                authorId: args.authorId,
+                                categoryId: args.categoryId
                                 });
                 return book.save();
             }
         },
+        addCategory: {
+            type: CategoryType,
+            args: {
+                name: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            async resolve(parent,args){
+                // Check if category already exists (case-sensitive).
+                const existing = await Category.findOne({ name: args.name });
+                if (existing) {
+                    throw new Error("Category already exists");
+                }
+                const category = new Category({ name: args.name });
+                return await category.save();
+            }
+        }
     }
 });
 
@@ -101,6 +121,13 @@ const RootQuery = new GraphQLObjectType({
                     hasNextPage,
                     hasPreviousPage
                 };
+            }
+        },
+        category:{
+            type: CategoryType,
+            args:{ id: { type: GraphQLID }},
+            async resolve(parent,args){
+                return await Category.findById(args.id);
             }
         },
         authorById:{
