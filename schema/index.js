@@ -17,6 +17,15 @@ const AuthorPaginationType = require("../types/AuthorPaginationType");
 const Category = require("../models/Category");
 const CategoryType = require("../types/CategoryType");
 
+//-----------------------------------------------
+
+const PostType = require("../types/PostType");
+const VideoType = require("../types/VideoType");
+const CommentType = require("../types/CommetType");
+const Post = require("../models/Post");
+const Video = require("../models/Video");
+const Comment = require("../models/Comment");
+
 const Mutation = new GraphQLObjectType({
 name: "Mutation",
 fields:{
@@ -30,6 +39,7 @@ addAuthor: {
         return author.save();
     }
 },
+
 addBook: {
     type: BookType,
     args: {
@@ -46,6 +56,7 @@ addBook: {
         return book.save();
     }
 },
+
 addCategory: {
     type: CategoryType,
     args: {
@@ -61,8 +72,52 @@ addCategory: {
         const category = new Category({ name: args.name, parentCategory: args.parentCategory || null });
         return await category.save();
     }
+},
+addPost: {
+    type: PostType,
+    args: {
+        title: { type: GraphQLString},
+        content: { type: GraphQLString}
+    },
+    resolve(parent,args){
+        const post= new Post({ 
+                        title: args.title,
+                        content: args.content
+                        });
+        return post.save();
+    }
+},
+addVideo: {
+    type: VideoType,
+    args: {
+        title: { type: GraphQLString},
+        url: { type: GraphQLString}
+    },
+    resolve(parent,args){
+        const video= new Video({ 
+                        title: args.title,
+                        url: args.url
+                        });
+        return video.save();
+    }
+},
+addComment: {
+    type: CommentType,
+    args: {
+        comment: { type: GraphQLString},
+        commentTableId: { type: GraphQLID}
+    },
+    resolve(parent,args){
+        const comment= new Comment({ 
+                        comment: args.comment,
+                        commentTableId: args.commentTableId
+                        });
+        return comment.save();
+    }
 }
+
 }
+
 });
 
 const RootQuery = new GraphQLObjectType({
