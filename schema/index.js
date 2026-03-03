@@ -105,12 +105,18 @@ addComment: {
     type: CommentType,
     args: {
         comment: { type: GraphQLString},
-        commentTableId: { type: GraphQLID}
+        commentTableId: { type: GraphQLID},
+        commentTableType: { 
+            type: GraphQLString,
+            enum: ['Post', 'Video', 'Book'],
+            required: true
+        }
     },
     resolve(parent,args){
         const comment= new Comment({ 
                         comment: args.comment,
-                        commentTableId: args.commentTableId
+                        commentTableId: args.commentTableId,
+                        commentTableType: args.commentTableType
                         });
         return comment.save();
     }
@@ -224,6 +230,12 @@ videos:{
     async resolve(parent,args){
         return await Video.find({});
     }
+},
+comments:{
+    type: new GraphQLList(CommentType),
+    async resolve(parent,args){
+        return await Comment.find({});
+    }   
 }
 }
 });
