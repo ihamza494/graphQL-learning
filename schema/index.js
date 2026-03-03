@@ -150,7 +150,6 @@ authors:{
         };
     }
 },
-
 books:{
     type: BookPaginationType,
     args:{
@@ -213,6 +212,18 @@ args:{ name: { type: GraphQLString }},
 resolve(parent,args){
     return Author.findOne({name: args.name});
 }       
+},
+posts:{
+    type: new GraphQLList(PostType),
+    async resolve(parent,args){
+        return await Post.find({});
+    }
+},
+videos:{
+    type: new GraphQLList(VideoType),
+    async resolve(parent,args){
+        return await Video.find({});
+    }
 }
 }
 });
